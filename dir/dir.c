@@ -75,14 +75,12 @@ void dir_print (struct dirent *dir) {
  switch (type) {
 	case FILE_TYPE:
 	 ++filec;
+	 total_size += get_size(dir->d_name);
 	 break;
 	case DIR_TYPE:
 	 ++dirc;
 	 break;
  }
-
- /* Increment total file size */
- total_size += get_size(dir->d_name);
 
  /* Print out the file name */
  fprintf(stdout, "%s\n", dir->d_name);
