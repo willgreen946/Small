@@ -4,19 +4,8 @@ namespace BasicCalculator
 {
  class BC
  {
-	/* Returns true if c is a valid operator */
-	static bool IsOperator (char c)
-	{
-	 switch (c)
-	 {
-		case '+':
-		case '-':
-		case '/':
-		case '*':
-		return true;
-	 }
-	 return false;
-	}
+	/* Global variable for storing result of statment */
+	static double result = 0;
 
 	/* Returns true if the char is a space char */
 	static bool IsSpace (char c)
@@ -41,26 +30,62 @@ namespace BasicCalculator
 	 return argc;
 	}
 
-	static float Calculate (float n1, char op, float n2)
+	/* Returns n1 plus n2 */
+	static double Add (double n1, double n2)
+	{
+	 return (n1 + n2);
+	}
+
+	/* Returns n1 subtracted by n2 */
+	static double Sub (double n1, double n2)
+	{
+	 return (n1 - n2);
+	}
+
+	/* Returns n1 multiplyed by n2 */
+	static double Mul (double n1, double n2)
+	{
+	 return (n1 * n2);
+	}
+
+	/* Returns n1 divided by n2 */
+	static double Div (double n1, double n2)
+	{
+	 return (n1 / n2);
+	}
+
+	/* Returns remainder of n1 divided by n2 */
+	static double Mod (double n1, double n2)
+	{
+	 return (n1 % n2);
+	}
+
+	/* Returns result of n1 to the power of n2 */
+	static double Pow (double n1, double n2)
+	{
+	 return (Math.Pow(n1, n2));
+	}
+
+	static double Calculate (double n1, char op, double n2)
 	{
 	 switch (op)
 	 {
 		case '+':
-		 return (n1 + n2);
+		 return Add(n1, n2);
 		case '-':
-		 return (n1 - n2);
+		 return Sub(n1, n2);
 		case '*':
-		 return (n1 * n2);
+		 return Mul(n1, n2);
 		case '/':
-		 return (n1 / n2);
+		 return Div(n1, n2);
 		case '%':
-		 return (n1 % n2);
+		 return Mod(n1, n2);
+		case '^':
+		 return Pow(n1, n2);
 		default:
 		 Console.WriteLine("No such operator " + op);
-		 return -1;
+		 return 0;
 	 }
-
-	 return 0;
 	}
 
 	/* Reads from a array of strings (a line) */
@@ -69,12 +94,15 @@ namespace BasicCalculator
 	 /* Assumes a int op int op pattern with the arguments
 	  * To visualise this think 32 + 32 = 64 */
 	 int argc = GetArgcString(argv);
-	 float num1 = 0, num2 = 0, result = 0;
+	 double num1 = 0, num2 = 0;
 	 char op;
 
 	 for (int i = 0; i < argc; i++)
 	 {
-		if (!float.TryParse(argv[i], out num1))
+		if (argv[i] == "res")
+		 num1 = result;
+
+		else if (!double.TryParse(argv[i], out num1))
 		{
 		 Console.WriteLine("Couldn't convert " + argv[i] + " to an interger");
 		 return;
@@ -82,19 +110,25 @@ namespace BasicCalculator
 
 		op = argv[++i][0];
 
-		if (!float.TryParse(argv[++i], out num2))
+		if (argv[++i] == "res")
+		 num2 = result;
+
+		else if (!double.TryParse(argv[i], out num2))
 		{
 		 Console.WriteLine("Couldn't convert " + argv[i] + " to an interger");
 		 return;
 		}
 
-		result += Calculate(num1, op, num2);
-
-		if (result == -1)
-		 return;
+		result = Calculate(num1, op, num2);
 	 }
 
 	 Console.WriteLine(result);
+	}
+
+	static void IsCommand (string str)
+	{
+	 if (str == "exit" || str == "quit")
+		Environment.Exit(0);
 	}
 
 	/* This splits up a string by whitespace */
@@ -112,9 +146,17 @@ namespace BasicCalculator
 		else ++argc;
 	 }
 
+	 IsCommand(tokens[0]);
+
 	 if (argc < 2)
 	 {
 		Console.WriteLine("Need at least 3 arguments to calculate");
+		return;
+	 }
+
+	 else if (argc > 3)
+	 {
+		Console.WriteLine("Too many arguments passed to calculate");
 		return;
 	 }
 
