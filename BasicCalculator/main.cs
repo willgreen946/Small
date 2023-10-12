@@ -49,19 +49,19 @@ namespace BasicCalculator
 	/* Returns n1 divided by n2 */
 	static double Div (double n1, double n2)
 	{
-	 return (n1 / n2);
+	 return (n1 == 0 || n2 == 0) ? 0 : (n1 / n2);
 	}
 
 	/* Returns remainder of n1 divided by n2 */
 	static double Mod (double n1, double n2)
 	{
-	 return (n1 % n2);
+	 return (n1 == 0 || n2 == 0) ? 0 : (n1 % n2);
 	}
 
 	/* Returns result of n1 to the power of n2 */
 	static double Pow (double n1, double n2)
 	{
-	 return (Math.Pow(n1, n2));
+	 return Math.Pow(n1, n2);
 	}
 
 	static double Calculate (double n1, char op, double n2)
