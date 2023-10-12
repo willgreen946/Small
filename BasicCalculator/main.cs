@@ -4,7 +4,7 @@ namespace BasicCalculator
 {
  class BC
  {
-	/* Global variable for storing result of statment */
+	/* Stores the result of statement */
 	static double result = 0;
 
 	/* Returns true if the char is a space char */
@@ -15,8 +15,6 @@ namespace BasicCalculator
 		case ' ': return true;
 		case '\t': return true;
 		case '\n': return true;
-		case '\r': return true;
-		case '\a': return true;
 	 }
 
 	 return false;
@@ -91,8 +89,7 @@ namespace BasicCalculator
 	/* Reads from a array of strings (a line) */
 	static void ReadLine (string[] argv)
 	{
-	 /* Assumes a int op int op pattern with the arguments
-	  * To visualise this think 32 + 32 = 64 */
+	 /* Assumes a this pattern 3 + 3 */
 	 int argc = GetArgcString(argv);
 	 double num1 = 0, num2 = 0;
 	 char op;
@@ -148,15 +145,9 @@ namespace BasicCalculator
 
 	 IsCommand(tokens[0]);
 
-	 if (argc < 2)
+	 if (argc != 3)
 	 {
-		Console.WriteLine("Need at least 3 arguments to calculate");
-		return;
-	 }
-
-	 else if (argc > 3)
-	 {
-		Console.WriteLine("Too many arguments passed to calculate");
+		Console.WriteLine("Need 3 arguments to calculate");
 		return;
 	 }
 
