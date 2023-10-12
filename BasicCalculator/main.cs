@@ -7,6 +7,9 @@ namespace BasicCalculator
 	/* Stores the result of statement */
 	static double result = 0;
 
+	/* Stores the previous statement */
+	static string prevStatment;
+
 	/* Returns true if the char is a space char */
 	static bool IsSpace (char c)
 	{
@@ -20,6 +23,26 @@ namespace BasicCalculator
 	 return false;
 	}
 
+	/* Returns true if c is a number */
+	static bool IsDigit (char c)
+	{
+	 switch (c)
+	 {
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		 return true;
+	 }
+
+	 return false;
+	}
 	/* Returns the number of elements in a string array */
 	static int GetArgcString (string[] argv)
 	{
@@ -86,6 +109,16 @@ namespace BasicCalculator
 	 }
 	}
 
+	static bool ConvertDouble (string str, ref double d)
+	{
+	 if (!double.TryParse(str, out d))
+	 {
+		Console.WriteLine("Couldn't convert " + str + " to a number");
+		return false;
+	 }
+	 return true;
+	}
+
 	/* Reads from a array of strings (a line) */
 	static void ReadLine (string[] argv)
 	{
@@ -96,25 +129,13 @@ namespace BasicCalculator
 
 	 for (int i = 0; i < argc; i++)
 	 {
-		if (argv[i] == "res")
-		 num1 = result;
-
-		else if (!double.TryParse(argv[i], out num1))
-		{
-		 Console.WriteLine("Couldn't convert " + argv[i] + " to an interger");
+		if (!ConvertDouble(argv[i], ref num1))
 		 return;
-		}
 
 		op = argv[++i][0];
 
-		if (argv[++i] == "res")
-		 num2 = result;
-
-		else if (!double.TryParse(argv[i], out num2))
-		{
-		 Console.WriteLine("Couldn't convert " + argv[i] + " to an interger");
+		if (!ConvertDouble(argv[++i], ref num2))
 		 return;
-		}
 
 		result = Calculate(num1, op, num2);
 	 }
@@ -124,7 +145,14 @@ namespace BasicCalculator
 
 	static void IsCommand (string str)
 	{
-	 if (str == "exit" || str == "quit")
+	 if (str == "!!")
+	 {
+		if (prevStatment != null)
+		 ParseString(prevStatment);
+		return;
+	 }
+
+	 if (str == "exit")
 		Environment.Exit(0);
 	}
 
@@ -138,12 +166,20 @@ namespace BasicCalculator
 	 for (int i = 0; i < calcString.Length; ++i)
 	 {
 		/* Ignore whitespace */
-		if (!IsSpace(calcString[i]))
-		 tokens[argc] += calcString[i];
-		else ++argc;
-	 }
+		if (IsSpace(calcString[i])) {}
 
-	 IsCommand(tokens[0]);
+		else if (IsDigit(calcString[i]))
+		 tokens[argc] += calcString[i];
+
+		/* This is for the operator */
+		else
+		{
+		 tokens[++argc] += calcString[i];
+		 ++argc;
+		}
+
+		prevStatment = calcString;
+	 }
 
 	 if (argc != 2)
 	 {
@@ -161,6 +197,7 @@ namespace BasicCalculator
 		string calcStr;
 
 		calcStr = Console.ReadLine();
+		IsCommand(calcStr);
 		ParseString(calcStr);
 	 }
 	}
