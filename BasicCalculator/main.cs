@@ -41,7 +41,7 @@ namespace BasicCalculator
 	 return argc;
 	}
 
-	static int Calculate (int n1, char op, int n2)
+	static float Calculate (float n1, char op, float n2)
 	{
 	 switch (op)
 	 {
@@ -55,22 +55,26 @@ namespace BasicCalculator
 		 return (n1 / n2);
 		case '%':
 		 return (n1 % n2);
+		default:
+		 Console.WriteLine("No such operator " + op);
+		 return -1;
 	 }
 
 	 return 0;
 	}
 
+	/* Reads from a array of strings (a line) */
 	static void ReadLine (string[] argv)
 	{
 	 /* Assumes a int op int op pattern with the arguments
 	  * To visualise this think 32 + 32 = 64 */
 	 int argc = GetArgcString(argv);
-	 int num1 = 0, num2 = 0, result = 0;
+	 float num1 = 0, num2 = 0, result = 0;
 	 char op;
 
 	 for (int i = 0; i < argc; i++)
 	 {
-		if (!int.TryParse(argv[i], out num1))
+		if (!float.TryParse(argv[i], out num1))
 		{
 		 Console.WriteLine("Couldn't convert " + argv[i] + " to an interger");
 		 return;
@@ -78,15 +82,19 @@ namespace BasicCalculator
 
 		op = argv[++i][0];
 
-		if (!int.TryParse(argv[++i], out num2))
+		if (!float.TryParse(argv[++i], out num2))
 		{
 		 Console.WriteLine("Couldn't convert " + argv[i] + " to an interger");
 		 return;
 		}
 
-		result = Calculate(num1, op, num2);
-		Console.WriteLine(result);
+		result += Calculate(num1, op, num2);
+
+		if (result == -1)
+		 return;
 	 }
+
+	 Console.WriteLine(result);
 	}
 
 	/* This splits up a string by whitespace */
