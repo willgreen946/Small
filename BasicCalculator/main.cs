@@ -145,7 +145,7 @@ namespace BasicCalculator
 
 	 IsCommand(tokens[0]);
 
-	 if (argc != 3)
+	 if (argc != 2)
 	 {
 		Console.WriteLine("Need 3 arguments to calculate");
 		return;
