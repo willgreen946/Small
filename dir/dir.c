@@ -39,7 +39,9 @@ void dir_print_time (const char *str) {
  char *tms;
 
  /* Get the file creation date */
- stat(str, &stat_t);
+ if (stat(str, &stat_t) > 0)
+	return;
+
  time_info = localtime(&stat_t.st_ctime);
 
  tms = asctime(time_info);
