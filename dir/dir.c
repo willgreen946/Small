@@ -7,19 +7,12 @@
 #include <time.h>
 #include <dirent.h>
 
-#define FILE_TYPE 1
-#define DIR_TYPE 2
+typedef enum { FILE_TYPE = 1, DIR_TYPE = 2 } file_type;
 
-typedef uint8_t type_t;
+uintmax_t total_file_size = 0, file_count = 0, dir_count = 0;
 
-/* Total size of all the files combined */
-size_t total_size = 0;
-
-/* Count of all directorys and files */
-size_t filec = 0, dirc = 0;
-
-/* Prints the type of the file and returns the type as a type_t */
-type_t dir_print_type (uint8_t type) {
+/* Prints the type of the file and returns the type */
+file_type dir_print_type (uint8_t type) {
  switch (type) {
 	case DT_DIR:
 	 fprintf(stdout, "<DIR>\t");
@@ -34,15 +27,15 @@ type_t dir_print_type (uint8_t type) {
 
 /* Prints the time info without \n */
 void dir_print_time (const char *str) {
- struct stat stat_t;
+ struct stat t_stat;
  struct tm *time_info;
  char *tms;
 
  /* Get the file creation date */
- if (stat(str, &stat_t) > 0)
+ if (stat(str, &t_stat) > 0)
 	return;
 
- time_info = localtime(&stat_t.st_ctime);
+ time_info = localtime(&t_stat.st_ctime);
 
  tms = asctime(time_info);
 
@@ -53,8 +46,8 @@ void dir_print_time (const char *str) {
 }
 
 /* Returns the size of a file */
-size_t get_size (const char *fn) {
- size_t size = 0;
+uintmax_t get_size (const char *fn) {
+ uintmax_t size = 0;
  FILE *fp;
 
  if (!(fp = fopen(fn, "r")))
@@ -69,18 +62,18 @@ size_t get_size (const char *fn) {
 
 /* Starts printing out directory information to the screen */
 void dir_print (struct dirent *dir) {
- type_t type;
+ file_type type;
 
  dir_print_time(dir->d_name);
  type = dir_print_type(dir->d_type);
 
  switch (type) {
 	case FILE_TYPE:
-	 ++filec;
-	 total_size += get_size(dir->d_name);
+	 ++file_count;
+	 total_file_size += get_size(dir->d_name);
 	 break;
 	case DIR_TYPE:
-	 ++dirc;
+	 ++dir_count;
 	 break;
  }
 
@@ -105,10 +98,10 @@ int dir_open (const char *dn) {
  closedir(dp);
 
  /* Print the file count */
- fprintf(stdout, "\t%zu File(s) %zu bytes\n", filec, total_size);
+ fprintf(stdout, "\t%zu File(s) %zu bytes\n", file_count, total_file_size);
 
  /* Print the directory count */
- fprintf(stdout, "\t%zu Dir(s)\t\n", dirc);
+ fprintf(stdout, "\t%zu Dir(s)\t\n", dir_count);
  return 0;
 }
 
