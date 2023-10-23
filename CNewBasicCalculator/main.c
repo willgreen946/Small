@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
+#include <ctype.h>
 #include <unistd.h>
 
 static double num_stack[255];
 static char op_stack[127];
 
+/* Sets all stack values to 0 */
 void
 clear_stack(void)
 {
@@ -18,17 +21,19 @@ clear_stack(void)
 		op_stack[i] = (char)0;
 }
 
+/* Pushes a double to the number stack */
 void
 push_num(const double num)
 {
 	size_t i;
 
-	for (i = 0; num_stack[i] != 0; i++)
+	for (i = 0; num_stack[i]; i++)
 		;
 
 	num_stack[i] = num;
 }
 
+/* Pushes an char to the operator stack */
 void
 push_op(const char op)
 {
@@ -80,22 +85,77 @@ calculate_entry(const char * op, const double num[])
 			result = calculate(result, op[k++], active);
 	}
 
-	fprintf(stdout, "%f\n", result);
+	fprintf(stdout, "%0.3f\n", result);
 }
 
-/* Goes through argv array from cmd line */
 int
-parse_args(const char ** argv)
+is_numeric(const char * str)
+{
+	unsigned int dot_count = 0;
+	size_t i;
+
+	if (strspn(str, "-.0123456789") != strlen(str))
+		return 0;
+
+	for (i = 0; str[i]; i++) {
+		if (i != 0 && str[i] == '-')
+			return 0;
+
+		if (str[i] == '.')
+			++dot_count;
+	}
+
+	if (dot_count >= 2)
+		return 0;
+
+	return 1;
+}
+
+int
+is_operator(const char op)
+{
+	switch (op) {
+		case '+':
+		case '-':
+		case 'x':
+		case 'X':
+		case '/':
+		case '^':
+		case '%':
+			return 1;
+	}
+	return 0;
+}
+
+/*
+ * Goes through argv array from cmd line,
+ * pushes numbers and operators their,
+ * corresponding stacks then starts the,
+ * calculation, uses a 1 + 1 assumption.
+*/
+int
+parse_args(int argc, const char ** argv)
 {
 	int n = 1;
 
+	if (argc < 4)
+		return 1;
+
 	while (*++argv) {
 		if (n) {
+			if (!is_numeric(*argv)) {
+				fprintf(stderr, "ERROR:%s is not numeric\n", *argv);
+				exit(1);
+			}
 			push_num((double)strtod(*argv, NULL));
 			n = 0;
 		}
 
 		else {
+			if (!is_operator(**argv) || strlen(*argv) >= 2) {
+				fprintf(stderr, "ERROR:%s is not a valid operator\n", *argv);
+				exit(1);
+			}
 			push_op(**argv);
 			n = 1;
 		}
@@ -105,21 +165,15 @@ parse_args(const char ** argv)
 	return 0;
 }
 
-void
+int
 event_loop(void) {
 	for (;;) {
 	}
-}
-
-int
-program_setup(void)
-{
-	event_loop();
 	return 0;
 }
 
 int
 main(int argc, const char ** argv)
 {
-	return (argc < 4) ? program_setup() : parse_args(argv);
+	return (argc < 2) ? event_loop() : parse_args(argc, argv);
 }
