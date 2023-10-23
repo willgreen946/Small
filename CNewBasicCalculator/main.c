@@ -61,10 +61,8 @@ calculate(const double n1, const char op, const double n2)
 			return (n1 / n2);
 		case '^':
 			return pow(n1, n2);
-		default:
-			fprintf(stderr, "ERROR:No such operator %c\n", op);
-			exit(1);
 	}
+	return 0.0;
 }
 
 void
@@ -88,17 +86,21 @@ calculate_entry(const char * op, const double num[])
 	fprintf(stdout, "%0.3f\n", result);
 }
 
+/* Returns 1 if string is not convertable to a float */
 int
 is_numeric(const char * str)
 {
 	unsigned int dot_count = 0;
 	size_t i;
 
-	if (strspn(str, "-.0123456789") != strlen(str))
+	if (strspn(str, "+-.0123456789") != strlen(str))
 		return 0;
 
 	for (i = 0; str[i]; i++) {
 		if (i != 0 && str[i] == '-')
+			return 0;
+
+		if (i != 0 && str[i] == '+')
 			return 0;
 
 		if (str[i] == '.')
