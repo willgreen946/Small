@@ -4,7 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <err.h>
 #include <math.h>
+
+#ifndef EXIT_SUCCESS
+	#define EXIT_SUCCESS 0
+#endif /* EXIT_SUCCESS */
+
+#ifndef EXIT_FAILURE
+	#define EXIT_FAILURE 1
+#endif /* EXIT_FAILURE */
 
 /* Returns the sum of two numbers added */
 double calc_add(const double, const double);
@@ -28,6 +37,7 @@ double calc_pow(const double, const double);
 void calc_clear_stack(void);
 
 int calc_parse_args(const char **, double *);
+
 #include "calc.c"
 
 #endif /* __CALC_H__ */
