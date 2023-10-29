@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <err.h>
 #include <math.h>
 
@@ -203,13 +204,16 @@ calculate(const double n1, const char op, const double n2, double * result)
 static int
 calc_is_numeric(const char * str)
 {
-	unsigned int decimal_count = 0;
 	size_t i;
+	unsigned int decimal_count = 0;
 
 	if (strspn(str, "+-.0123456789") != strlen(str))
 		return EXIT_FAILURE;
 
 	for (i = 0; str[i]; i++) {
+		if (str[i] == '.' && !isdigit(str[i-1]))
+			return EXIT_FAILURE;
+
 		if (i != 0 && str[i] == '-')
 			return EXIT_FAILURE;
 
