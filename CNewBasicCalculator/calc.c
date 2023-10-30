@@ -58,12 +58,18 @@ double calc_pow(const double, const double);
 /*
  * Pushes double to the number stack
  */
-int push_digit(const double);
+static int push_digit(const double);
 
 /*
  * Pushes char to the operator stack
  */
-int push_operator(const char);
+static int push_operator(const char);
+
+/*
+ * Resets the values in both number & operator stacks
+ * Sets the number_stack_count & operator_stack_count to 0
+ */
+void calc_clear_stack(void);
 
 /*
  * Sets sum of n1 (op) n2 in the double *, returns EXIT_FAILURE if op is not an operator
@@ -152,6 +158,7 @@ push_digit(const double num)
 {
 	if (number_stack_count < NUMBER_STACK_MAX)
 		number_stack[number_stack_count++] = num;
+
 	else {
 		err(EXIT_FAILURE, "too many numbers in number stack");
 		return EXIT_FAILURE;
@@ -165,12 +172,27 @@ push_operator(const char op)
 {
 	if (operator_stack_count < OPERATOR_STACK_MAX)
 		operator_stack[operator_stack_count++] = op;
+
 	else {
 		err(EXIT_FAILURE, "too many operators in operator stack");
 		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;
+}
+
+void
+calc_clear_stack(void)
+{
+	int i;
+
+	for (i = 0; number_stack[i]; i++)
+		number_stack[i] = 0;
+
+	for (i = 0; operator_stack[i]; i++)
+		operator_stack[i] = (char)0;
+
+	operator_stack_count = number_stack_count = 0;
 }
 
 static int 

@@ -51,18 +51,10 @@ double calc_mod(const double, const double);
  */
 double calc_pow(const double, const double);
 
-/*
- * Pushes double to the number stack
- */
-int push_digit(const double);
-
-/*
- * Pushes char to the operator stack
- */
-int push_operator(const char);
-
 /* 
  * Clears the number and operator stacks 
+ * Sets the counts for both to 0
+ * Should be called if we do more than 1 calculation
  */
 void calc_clear_stack(void);
   

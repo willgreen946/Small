@@ -66,6 +66,7 @@ read_file(FILE * fp)
 		if (calc_parse_args(argv, &result, 0))
 			return EXIT_FAILURE;
 
+		calc_clear_stack();
 		fprintf(stdout, "%0.4f\n", result);
 
 		/* Clear argv array */
@@ -114,7 +115,12 @@ open_file(const char ** argv)
 int
 setup(const char ** argv)
 {
-	double result = 0.0;
+	int i;
+	int k;
+	double result = 0;
+
+	/* Parse command line args */	
+	/*for (i = 0; */
 	
 	if (!strncmp(argv[1], "-f", 2) && argv[2])
 		return open_file(argv);
