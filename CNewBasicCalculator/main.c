@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <err.h>
 
 #include "calc.h"
 
@@ -60,10 +59,13 @@ read_file(FILE * fp)
 
 	while (fgets(buf, (TOTAL_STACK_SIZE*2) - 1, fp)) {
 		rm_newline(buf);
-		fprintf(stdout, "%s = ", buf);
+
+		if (CALC_VERBOSE_F)
+			fprintf(stdout, "%s = ", buf);
+
 		split_str((char**)argv, buf, " \t", TOTAL_STACK_SIZE);
 
-		if (calc_parse_args(argv, &result, 0))
+		if (calc_parse_args((const char**)argv, &result, 0))
 			return EXIT_FAILURE;
 
 		calc_clear_stack();
@@ -78,25 +80,24 @@ read_file(FILE * fp)
 }
 
 /*
- * Assumes argv[0] is command name,
- * argv[1] is "-f",
- * and argv[2] onwards is the file name.
+ * Attempts to open all arguments of argv,
+ * The function starts from the offset.
  */
 int
-open_file(const char ** argv)
+open_file(const char ** argv, int offset)
 {
 	FILE * fp;
 	size_t i;
 
-	for (i = 2; argv[i]; i++) {
+	for (i = offset; argv[i]; i++) {
 		if (!(fp = fopen(argv[i], "r"))) {
-			err(errno, "fopen \"%s\"", argv[i]);
+			fprintf(stderr, "ERROR:fopen \"%s\":%s\n", argv[i], strerror(errno));
 			return EXIT_FAILURE;
 		}
 
 		if (read_file(fp)) {
 			if (fclose(fp)) {
-				err(errno, "fclose \"%s\"", argv[i]);
+				fprintf(stderr, "ERROR:fclose \"%s\":%s\n", argv[i], strerror(errno));
 				return EXIT_FAILURE;
 			}
 
@@ -104,7 +105,7 @@ open_file(const char ** argv)
 		}
 
 		if (fclose(fp)) {
-			err(errno, "fclose \"%s\"", argv[i]);
+			fprintf(stderr, "fclose \"%s\":%s\n", argv[i], strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
@@ -116,16 +117,30 @@ int
 setup(const char ** argv)
 {
 	int i;
-	int k;
+	int offset = 1;
+	short file = FALSE;
 	double result = 0;
 
 	/* Parse command line args */	
-	/*for (i = 0; */
-	
-	if (!strncmp(argv[1], "-f", 2) && argv[2])
-		return open_file(argv);
+	for (i = 0; argv[i]; i++) {
+		if (!strncmp(argv[i], "-f", 2)) {
+			file = TRUE;
+			offset++;
+		}
 
-	else if (!calc_parse_args(argv, &result, 1)) {
+		else if (!strncmp(argv[i], "-v", 2)) {
+			CALC_VERBOSE_F = TRUE;
+			offset++;
+		}
+
+		else if (!strncmp(argv[i], "-h", 2))
+			return help();
+	}
+
+	if (file)	
+		return open_file(argv, offset);
+
+	else if (!calc_parse_args(argv, &result, offset)) {
 		fprintf(stdout, "%0.4f\n", result);
 		return EXIT_SUCCESS;
 	}
@@ -134,7 +149,16 @@ setup(const char ** argv)
 }
 
 int
+event_loop(void)
+{
+	for (;;)
+		read_file(stdin);
+	
+	return EXIT_SUCCESS;
+}
+
+int
 main(int argc, const char ** argv)
 {
-	return (argc < 2) ? help() : setup(argv);
+	return (argc < 2) ? event_loop() : setup(argv);
 }

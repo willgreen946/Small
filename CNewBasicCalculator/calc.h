@@ -4,22 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <err.h>
 #include <math.h>
-
-#ifndef EXIT_SUCCESS
-	#define EXIT_SUCCESS 0
-#endif /* EXIT_SUCCESS */
-
-#ifndef EXIT_FAILURE
-	#define EXIT_FAILURE 1
-#endif /* EXIT_FAILURE */
-
-#define NUMBER_STACK_MAX 128
-
-#define OPERATOR_STACK_MAX 64 
-
-#define TOTAL_STACK_SIZE OPERATOR_STACK_MAX + NUMBER_STACK_MAX
 
 /*
  * Returns the sum of two numbers added

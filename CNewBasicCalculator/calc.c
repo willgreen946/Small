@@ -2,8 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <err.h>
 #include <math.h>
+
+#ifndef TRUE
+	#define TRUE 1
+#endif /* TRUE */
+
+#ifndef FALSE
+	#define FALSE 0
+#endif /* FALSE */
 
 #ifndef EXIT_FAILURE
 	#define EXIT_FAILURE 1
@@ -64,6 +71,11 @@ static int push_digit(const double);
  * Pushes char to the operator stack
  */
 static int push_operator(const char);
+
+/*
+ * Flags that can be passed at the command line
+ */
+short CALC_VERBOSE_F = FALSE;
 
 /*
  * Resets the values in both number & operator stacks
@@ -160,7 +172,7 @@ push_digit(const double num)
 		number_stack[number_stack_count++] = num;
 
 	else {
-		err(EXIT_FAILURE, "too many numbers in number stack");
+		fprintf(stderr, "ERROR:Too many numbers in stack\n");
 		return EXIT_FAILURE;
 	}
 
@@ -174,7 +186,7 @@ push_operator(const char op)
 		operator_stack[operator_stack_count++] = op;
 
 	else {
-		err(EXIT_FAILURE, "too many operators in operator stack");
+		fprintf(stderr, "ERROR:Too many operators in stack\n");
 		return EXIT_FAILURE;
 	}
 
@@ -291,7 +303,7 @@ calc_parse_args(const char ** argv, double * result, int offset)
 	for (i = offset; argv[i]; i++) {
 		if (n) {
 			if (calc_is_numeric(argv[i])) {
-				err(EXIT_FAILURE, "%s is not numeric", argv[i]);
+				fprintf(stderr, "%s is not numeric\n", argv[i]);
 				return EXIT_FAILURE;
 			}
 
@@ -303,7 +315,7 @@ calc_parse_args(const char ** argv, double * result, int offset)
 
 		else {
 			if (calculate(1, *argv[i], 1, &test) || strlen(argv[i]) >= 2) {
-				err(EXIT_FAILURE, "%s is not a valid operator", argv[i]);
+				fprintf(stderr, "%s is not a valid operator\n", argv[i]);
 				return EXIT_FAILURE;
 			}
 	
