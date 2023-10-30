@@ -13,9 +13,17 @@
 	#define EXIT_SUCCESS 0
 #endif /* EXIT_SUCCESS */
 
-#define NUMBER_STACK_MAX 128
+#ifndef NUMBER_STACK_MAX
+	#define NUMBER_STACK_MAX 128
+#endif /* NUMBER_STACK_MAX */
 
-#define OPERATOR_STACK_MAX 64 
+#ifndef OPERATOR_STACK_MAX
+	#define OPERATOR_STACK_MAX 64 
+#endif /* OPERATOR_STACK_MAX */
+
+#ifndef TOTAL_STACK_SIZE
+	#define TOTAL_STACK_SIZE OPERATOR_STACK_MAX + NUMBER_STACK_MAX
+#endif /* TOTAL_STACK_SIZE */
 
 /*
  * Returns the sum of two numbers added
@@ -50,12 +58,12 @@ double calc_pow(const double, const double);
 /*
  * Pushes double to the number stack
  */
-static int push_digit(const double);
+int push_digit(const double);
 
 /*
  * Pushes char to the operator stack
  */
-static int push_operator(const char);
+int push_operator(const char);
 
 /*
  * Sets sum of n1 (op) n2 in the double *, returns EXIT_FAILURE if op is not an operator
@@ -81,7 +89,7 @@ static double calculate_entry(const char *, const double[]);
  * all you need to do is split up a string into a char * array
  * and pass it off to this function and put your double in there,
  */
-int calc_parse_args(const char **, double *);
+int calc_parse_args(const char **, double *, int);
 
 /*
  * Stores all the digits to be used in the calculation
@@ -139,7 +147,7 @@ calc_pow(const double n1, const double n2)
 	return pow(n1, n2);
 }
 
-static int 
+int 
 push_digit(const double num)
 {
 	if (number_stack_count < NUMBER_STACK_MAX)
@@ -152,13 +160,13 @@ push_digit(const double num)
 	return EXIT_SUCCESS;
 }
 
-static int 
+int 
 push_operator(const char op)
 {
 	if (operator_stack_count < OPERATOR_STACK_MAX)
 		operator_stack[operator_stack_count++] = op;
 	else {
-		err(EXIT_FAILURE, "too many operators in operators stack");
+		err(EXIT_FAILURE, "too many operators in operator stack");
 		return EXIT_FAILURE;
 	}
 
@@ -252,31 +260,32 @@ calculate_entry(const char * op, const double num[])
 }
 
 int
-calc_parse_args(const char ** argv, double * result)
+calc_parse_args(const char ** argv, double * result, int offset)
 {
 	short n = 1;
+	size_t i;
 	double test;
 
-	while (*++argv) {
+	for (i = offset; argv[i]; i++) {
 		if (n) {
-			if (calc_is_numeric(*argv)) {
-				err(EXIT_FAILURE, "%s is not numeric", *argv);
+			if (calc_is_numeric(argv[i])) {
+				err(EXIT_FAILURE, "%s is not numeric", argv[i]);
 				return EXIT_FAILURE;
 			}
 
-			if (push_digit((double)strtod(*argv, NULL)))
+			if (push_digit((double)strtod(argv[i], NULL)))
 				return EXIT_FAILURE;
 
 			n = 0;
 		}
 
 		else {
-			if (calculate(1, **argv, 1, &test) || strlen(*argv) >= 2) {
-				err(EXIT_FAILURE, "%s is not a valid operator", *argv);
+			if (calculate(1, *argv[i], 1, &test) || strlen(argv[i]) >= 2) {
+				err(EXIT_FAILURE, "%s is not a valid operator", argv[i]);
 				return EXIT_FAILURE;
 			}
-
-			if (push_operator(**argv))
+	
+			if (push_operator(*argv[i]))
 				return EXIT_FAILURE;
 
 			n = 1;

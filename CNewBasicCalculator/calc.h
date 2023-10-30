@@ -15,28 +15,58 @@
 	#define EXIT_FAILURE 1
 #endif /* EXIT_FAILURE */
 
-/* Returns the sum of two numbers added */
+#define NUMBER_STACK_MAX 128
+
+#define OPERATOR_STACK_MAX 64 
+
+#define TOTAL_STACK_SIZE OPERATOR_STACK_MAX + NUMBER_STACK_MAX
+
+/*
+ * Returns the sum of two numbers added
+ */
 double calc_add(const double, const double);
 
-/* Returns the sum of two numbers subtracted */
+/*
+ * Returns the sum of two numbers subtracted
+ */
 double calc_sub(const double, const double);
 
-/* Returns the sum of two numbers multiplyed */
+/*
+ * Returns the sum of two numbers multiplyed
+ */
 double calc_mul(const double, const double);
 
-/* Returns the sum of two numbers divided */
+/*
+ * Returns the sum of two numbers divided
+ */
 double calc_div(const double, const double);
 
-/* Returns the remainder of two numbers divided */
+/*
+ * Returns the remainder of two numbers divided
+ */
 double calc_mod(const double, const double);
 
-/* Returns the first argument to the power of the second */
+/*
+ * Returns the first argument to the power of the second 
+ */
 double calc_pow(const double, const double);
 
-/* Clears the number and operator stacks */
-void calc_clear_stack(void);
+/*
+ * Pushes double to the number stack
+ */
+int push_digit(const double);
 
-int calc_parse_args(const char **, double *);
+/*
+ * Pushes char to the operator stack
+ */
+int push_operator(const char);
+
+/* 
+ * Clears the number and operator stacks 
+ */
+void calc_clear_stack(void);
+  
+int calc_parse_args(const char **, double *, int);
 
 #include "calc.c"
 
