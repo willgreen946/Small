@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <errno.h>
 
@@ -9,7 +10,7 @@
  * Simple help function
  */
 int
-help(void)
+Help(void)
 {
 	fputs("USAGE:\n", stderr);
 	fputs("nbc [string] e.g 'nbc 5 + 5 x 20'\n", stderr);
@@ -21,7 +22,7 @@ help(void)
  * Removes newline char at end of string
  */
 void
-rm_newline(char * str)
+RemoveNewline(char * str)
 {
 	size_t len = strlen(str);
 
@@ -34,7 +35,7 @@ rm_newline(char * str)
  * Places results into char ** 
  */
 void
-split_str(char ** argv, char * str, const char * delim, size_t cap)
+SplitString(char ** argv, char * str, const char * delim, size_t cap)
 {
 	char ** p;
 
@@ -50,7 +51,7 @@ split_str(char ** argv, char * str, const char * delim, size_t cap)
  * Reads in a maximum of 384 bytes per line
  */
 int
-read_file(FILE * fp)
+ReadFile(FILE * fp)
 {
 	size_t i;
 	double result = 0;
@@ -58,17 +59,17 @@ read_file(FILE * fp)
 	char * argv[TOTAL_STACK_SIZE];
 
 	while (fgets(buf, (TOTAL_STACK_SIZE*2) - 1, fp)) {
-		rm_newline(buf);
+		RemoveNewline(buf);
 
 		if (CALC_VERBOSE_F)
 			fprintf(stdout, "%s = ", buf);
 
-		split_str((char**)argv, buf, " \t", TOTAL_STACK_SIZE);
+		SplitString((char**)argv, buf, " \t", TOTAL_STACK_SIZE);
 
-		if (calc_parse_args((const char**)argv, &result, 0))
+		if (CalculateEntry((const char**)argv, &result, 0))
 			return EXIT_FAILURE;
 
-		calc_clear_stack();
+		ClearCalculationStack();
 		fprintf(stdout, "%0.4f\n", result);
 
 		/* Clear argv array */
@@ -84,7 +85,7 @@ read_file(FILE * fp)
  * The function starts from the offset.
  */
 int
-open_file(const char ** argv, int offset)
+OpenFile(const char ** argv, int offset)
 {
 	FILE * fp;
 	size_t i;
@@ -95,7 +96,7 @@ open_file(const char ** argv, int offset)
 			return EXIT_FAILURE;
 		}
 
-		if (read_file(fp)) {
+		if (ReadFile(fp)) {
 			if (fclose(fp)) {
 				fprintf(stderr, "ERROR:fclose \"%s\":%s\n", argv[i], strerror(errno));
 				return EXIT_FAILURE;
@@ -105,7 +106,7 @@ open_file(const char ** argv, int offset)
 		}
 
 		if (fclose(fp)) {
-			fprintf(stderr, "fclose \"%s\":%s\n", argv[i], strerror(errno));
+			fprintf(stderr, "ERROR:fclose \"%s\":%s\n", argv[i], strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
@@ -114,33 +115,33 @@ open_file(const char ** argv, int offset)
 }
 
 int
-setup(const char ** argv)
+Setup(const char ** argv)
 {
 	int i;
 	int offset = 1;
-	short file = FALSE;
+	bool file = false; 
 	double result = 0;
 
 	/* Parse command line args */	
 	for (i = 0; argv[i]; i++) {
 		if (!strncmp(argv[i], "-f", 2)) {
-			file = TRUE;
+			file = true;
 			offset++;
 		}
 
 		else if (!strncmp(argv[i], "-v", 2)) {
-			CALC_VERBOSE_F = TRUE;
+			CALC_VERBOSE_F = false;
 			offset++;
 		}
 
 		else if (!strncmp(argv[i], "-h", 2))
-			return help();
+			return Help();
 	}
 
 	if (file)	
-		return open_file(argv, offset);
+		return OpenFile(argv, offset);
 
-	else if (!calc_parse_args(argv, &result, offset)) {
+	else if (!CalculateEntry(argv, &result, offset)) {
 		fprintf(stdout, "%0.4f\n", result);
 		return EXIT_SUCCESS;
 	}
@@ -149,10 +150,10 @@ setup(const char ** argv)
 }
 
 int
-event_loop(void)
+EventLoop(void)
 {
 	for (;;)
-		read_file(stdin);
+		ReadFile(stdin);
 	
 	return EXIT_SUCCESS;
 }
@@ -160,5 +161,5 @@ event_loop(void)
 int
 main(int argc, const char ** argv)
 {
-	return (argc < 2) ? event_loop() : setup(argv);
+	return (argc < 2) ? EventLoop() : Setup(argv);
 }
